@@ -1,10 +1,6 @@
 name: Build APK
 
 on:
-  push:
-    branches:
-      - main
-      - master
   workflow_dispatch:
 
 jobs:
@@ -12,48 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-
-      - name: Create Flutter Platforms
-        run: flutter create . --org com.example --project-name couple_ledger
-
-      - name: Patch Android Configuration
-        run: |
-          FILE=android/app/build.gradle.kts
-
-          sed -i '/compileOptions {/a\
-                  isCoreLibraryDesugaringEnabled = true' "$FILE"
-
-          cat >> "$FILE" <<'EOF'
-
-dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-}
-EOF
-
-          echo "===== PATCHED FILE ====="
-          cat "$FILE"
-
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --release
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: couple-ledger-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Hello
+        run: echo "Workflow OK"
