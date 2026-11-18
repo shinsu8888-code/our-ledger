@@ -19,14 +19,20 @@ jobs:
         with:
           channel: stable
 
-      - name: Flutter Doctor
-        run: flutter doctor
-
       - name: Create Android Project
         run: flutter create .
 
-      - name: Show App Gradle
-        run: cat android/app/build.gradle.kts
+      - name: Patch Gradle
+        run: |
+          FILE=android/app/build.gradle.kts
 
-      - name: Pub Get
-        run: flutter pub get
+          sed -i '/compileOptions {/a\
+                  isCoreLibraryDesugaringEnabled = true' "$FILE"
+
+          echo "" >> "$FILE"
+          echo "dependencies {" >> "$FILE"
+          echo "    coreLibraryDesugaring(\"com.android.tools:desugar_jdk_libs:2.1.5\")" >> "$FILE"
+          echo "}" >> "$FILE"
+
+      - name: Show Result
+        run: cat android/app/build.gradle.kts
