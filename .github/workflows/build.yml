@@ -26,45 +26,25 @@ jobs:
         with:
           channel: stable
 
-      - name: Flutter Doctor
-        run: flutter doctor -v
-
-      - name: Generate Flutter Platforms
+      - name: Create Flutter Platforms
         run: flutter create . --org com.example --project-name couple_ledger
 
-      - name: Show Android Structure
+      - name: Patch Android Configuration
         run: |
-          echo "=============================="
-          echo "ANDROID FILES"
-          echo "=============================="
-          find android -type f | sort
+          FILE=android/app/build.gradle.kts
 
-      - name: Show Gradle Files
-        run: |
-          echo "=============================="
-          echo "GRADLE FILES"
-          echo "=============================="
-          find android -name "*.gradle*" -type f
+          sed -i '/compileOptions {/a\
+                  isCoreLibraryDesugaringEnabled = true' "$FILE"
 
-      - name: Show build.gradle.kts
-        run: |
-          if [ -f android/app/build.gradle.kts ]; then
-            echo "FOUND build.gradle.kts"
-            echo "=============================="
-            cat android/app/build.gradle.kts
-          else
-            echo "build.gradle.kts NOT FOUND"
-          fi
+          cat >> "$FILE" <<'EOF'
 
-      - name: Show build.gradle
-        run: |
-          if [ -f android/app/build.gradle ]; then
-            echo "FOUND build.gradle"
-            echo "=============================="
-            cat android/app/build.gradle
-          else
-            echo "build.gradle NOT FOUND"
-          fi
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+}
+EOF
+
+          echo "===== PATCHED FILE ====="
+          cat "$FILE"
 
       - name: Install Dependencies
         run: flutter pub get
@@ -73,7 +53,6 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: couple-ledger-apk
