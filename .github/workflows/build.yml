@@ -29,38 +29,51 @@ jobs:
       - name: Flutter Doctor
         run: flutter doctor -v
 
-      - name: Create Android Project
+      - name: Generate Flutter Platforms
         run: flutter create . --org com.example --project-name couple_ledger
 
-      - name: Configure Android Build
+      - name: Show Android Structure
         run: |
-          FILE=android/app/build.gradle.kts
+          echo "=============================="
+          echo "ANDROID FILES"
+          echo "=============================="
+          find android -type f | sort
 
-          if [ -f "$FILE" ]; then
+      - name: Show Gradle Files
+        run: |
+          echo "=============================="
+          echo "GRADLE FILES"
+          echo "=============================="
+          find android -name "*.gradle*" -type f
 
-            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 37/g' "$FILE"
-
-            sed -i '/compileOptions {/a\
-                    isCoreLibraryDesugaringEnabled = true' "$FILE"
-
-            sed -i '/dependencies {/a\
-                    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")' "$FILE"
-
-            echo "===== build.gradle.kts ====="
-            cat "$FILE"
+      - name: Show build.gradle.kts
+        run: |
+          if [ -f android/app/build.gradle.kts ]; then
+            echo "FOUND build.gradle.kts"
+            echo "=============================="
+            cat android/app/build.gradle.kts
+          else
+            echo "build.gradle.kts NOT FOUND"
           fi
 
-      - name: Pub Get
-        run: flutter pub get
+      - name: Show build.gradle
+        run: |
+          if [ -f android/app/build.gradle ]; then
+            echo "FOUND build.gradle"
+            echo "=============================="
+            cat android/app/build.gradle
+          else
+            echo "build.gradle NOT FOUND"
+          fi
 
-      - name: Analyze
-        run: flutter analyze
-        continue-on-error: true
+      - name: Install Dependencies
+        run: flutter pub get
 
       - name: Build APK
         run: flutter build apk --release
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: couple-ledger-apk
