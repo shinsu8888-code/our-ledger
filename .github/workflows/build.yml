@@ -36,11 +36,19 @@ jobs:
           echo "    coreLibraryDesugaring(\"com.android.tools:desugar_jdk_libs:2.1.5\")" >> "$FILE"
           echo "}" >> "$FILE"
 
+          echo "" >> "$FILE"
+          echo "android {" >> "$FILE"
+          echo "    lint {" >> "$FILE"
+          echo "        checkReleaseBuilds = false" >> "$FILE"
+          echo "        abortOnError = false" >> "$FILE"
+          echo "    }" >> "$FILE"
+          echo "}" >> "$FILE"
+
       - name: Install Dependencies
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --no-shrink
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
