@@ -20,14 +20,26 @@ class AddEditScreen extends StatefulWidget {
 }
 
 class _AddEditScreenState extends State<AddEditScreen> {
-  late bool _income = widget.isIncome;
+  late bool _income;
+  late String _selectedCategory;
+
   final _amount = TextEditingController();
   final _note = TextEditingController();
+
   DateTime _date = DateTime.now();
-  late String _selectedCategory =
-      (_income ? incomeCategories : expenseCategories).first.name;
   bool _autoPicked = false;
 
+  @override
+  void initState() {
+    super.initState();
+
+    _income = widget.isIncome;
+
+    _selectedCategory =
+        (_income ? incomeCategories : expenseCategories)
+            .first
+            .name;
+  }
   @override
   void dispose() {
     _amount.dispose();
